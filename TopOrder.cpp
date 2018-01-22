@@ -14,7 +14,8 @@
 #include <stack>
 #include <queue>
 
-int count1 = 0;
+
+static int count = 0;
 
 template <class T>
 bool pq_compare(Vertex<T> * v1, Vertex<T> * v2){
@@ -23,28 +24,30 @@ bool pq_compare(Vertex<T> * v1, Vertex<T> * v2){
 
 
 template <class T>
-static void explore(Vertex<T> * vertex){
-    std::stack<Vertex <T> * > stack1;
-    if(!vertex->visited){
-        stack1.push(vertex);
-        vertex->pre = count1;
-        count1++;
-    }
-    else
-        return;
-    while(!stack1.isempty()){
-        auto curr = stack1.top();
-        if(curr->edges.size() !=0){
-            for(auto it = curr->edges.begin(); it != curr->edges.end(); it++){
-                stack1.push(*it);
+void explore(Vertex<T> * vertex, Graph<T> &g){
+    std::stack<Vertex <T> * > stack;
+    stack.push(vertex);
+    std::cout<<"HEY\n";
+       while(!stack.empty()){
+           auto curr = stack.top();
+            if(!curr->visited){
+                curr->pre = count++;
+                curr->visited = true;
+                for(auto it = curr->edges.begin(); it != curr->edges.end(); it++){
+                Vertex<T> * curr1 = g.vertices.find(*it)->second;
+                    if(curr1->visited){
+                        stack.push(curr1);
+                    }
+                }    
+                
             }
-        }
-        else{
-            curr = stack1.pop();
-            curr->post = count1;
-            count1++;
-        }
-    }
+            else{
+                curr = stack.top();
+                curr->post = count++;
+                stack.pop();
+            }
+            
+       }
     return;
 }
 
@@ -52,16 +55,24 @@ template <class T>
 std::list<T> top_order(Graph<T>& g) {
   std::list<T> res;
 
-  
+ 
   std::priority_queue<Vertex<T> * ,std::vector<Vertex<T> *>, bool
       (*)(Vertex<T> *, Vertex<T> *)> mypq(pq_compare);
 
-  for(auto it = g.vertices.begin(); it != g.vertices.end(); it++){
-      //explore(&it);
-      //mypq.push((*it));
+    for(auto it = g.vertices.begin(); it != g.vertices.end(); it++){
+      explore(it->second, g);
+      mypq.push(it->second);
+    }
+  
+    //ordering by topological 
+  while(!mypq.empty()){
+    res.push_back((mypq.top())->id);
+    std::cout << (mypq.top())->id << " " << (mypq.top())->pre << "\n" ;
+    mypq.pop();
   }
 
-  //res.add(mypq.pop());
+  //check for cycles
+  for(auto 
 
 
 
