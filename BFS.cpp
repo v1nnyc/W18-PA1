@@ -1,8 +1,8 @@
 // CSE 101 Winter 2018, PA 1
 //
-// Name: TODO put both partners' info if applicable
-// PID: TODO
-// Sources of Help: TODO
+// Name: Vincent Cannalla
+// PID: A13006747
+// Sources of Help: None
 // Due: 1/26/2018 at 11:59 PM
 
 #include "Graph.hpp"
@@ -11,11 +11,11 @@
 #include <list>
 #include <set>
 
+//method to perform BFS on a graph
+//returns res which is a set of vertex IDs
 template <class T>
 std::set<T> bfs(Graph<T>& g, T t) {
   std::set<T> res;
-  // TODO: Implements BFS
-
   std::queue<Vertex<T> > queue;
 
   auto myVertex = g.vertices.find(t);
