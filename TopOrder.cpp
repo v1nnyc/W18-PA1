@@ -15,7 +15,7 @@
 #include <queue>
 
 
-static int count = 0;
+static int count = 1;
 
 template <class T>
 bool pq_compare(Vertex<T> * v1, Vertex<T> * v2){
@@ -27,108 +27,102 @@ template <class T>
 void explore(Vertex<T> * vertex, Graph<T> &g){
     std::stack<Vertex <T> * > stack;
     stack.push(vertex);
-    std::cout<<"HEY\n";
        while(!stack.empty()){
            auto curr = stack.top();
             if(!curr->visited){
                 curr->pre = count++;
                 curr->visited = true;
+                if(curr->edges.size() != 0){
                 for(auto it = curr->edges.begin(); it != curr->edges.end(); it++){
-                Vertex<T> * curr1 = g.vertices.find(*it)->second;
-                    if(curr1->visited){
-                        stack.push(curr1);
+                    Vertex<T> * add = g.vertices.find(*it)->second;
+                    if(!add->visited){
+                        stack.push(add);
                     }
-                }    
+                }   
+                }
                 
             }
             else{
-                curr = stack.top();
-                curr->post = count++;
                 stack.pop();
+                curr->post = count++;
             }
-            
        }
     return;
 }
 
 template <class T>
+bool checkCycle(Vertex<T> * vertex, Graph<T> &g){
+    std::stack<Vertex <T> * > stack;
+    stack.push(vertex);
+       while(!stack.empty()){
+           auto curr = stack.top();
+            if(!curr->visited){
+                curr->visited = true;
+                if(curr->edges.size() != 0){
+                for(auto it = curr->edges.begin(); it != curr->edges.end(); it++){
+                    Vertex<T> * add = g.vertices.find(*it)->second;
+                    if(!add->visited){
+                         auto v = add;
+                         auto u = vertex;
+                         if(v->pre < u-> pre && u->pre < u->post && u->post < v->post){
+                             std::cout << "U: " << u->id << "\n";
+                             std::cout << "V: " << v->id << "\n";
+
+                             return true;
+                         }
+                        stack.push(add);
+                    }
+                }   
+                }
+                
+            }
+            else{
+                stack.pop();
+            }
+       }
+    return false;
+}
+
+template <class T>
+void unvisit(Graph<T>& g){
+    for(auto it = g.vertices.begin(); it != g.vertices.end(); it++){
+        it->second->visited = false;
+    }
+}
+
+template <class T>
 std::list<T> top_order(Graph<T>& g) {
   std::list<T> res;
+  std::list<T> cycle;
 
  
   std::priority_queue<Vertex<T> * ,std::vector<Vertex<T> *>, bool
       (*)(Vertex<T> *, Vertex<T> *)> mypq(pq_compare);
 
     for(auto it = g.vertices.begin(); it != g.vertices.end(); it++){
-      explore(it->second, g);
-      mypq.push(it->second);
+        if(!it->second->visited){
+            explore(it->second, g);
+        }
+        mypq.push(it->second);
     }
   
     //ordering by topological 
   while(!mypq.empty()){
     res.push_back((mypq.top())->id);
-    std::cout << (mypq.top())->id << " " << (mypq.top())->pre << "\n" ;
     mypq.pop();
   }
 
   //check for cycles
-  for(auto 
-
-
-
-
-
-/*  int i = 0;
-  for(auto it = revG.vertices.begin(); it != revG.vertices.end(); it++){
-    int count = (*(*it).second).edges.size();
-    if(count == 0){
-    mymap.insert(std::pair<int, T>(i, (*(*it).second).id));
-    i++;
-    }
-  }
-
-  std::stack<Vertex <T> > stack;
-
-
-
-
-  int count = 1;
-  for(auto it = mymap.begin(); it != mymap.end(); it++){
-      auto curr = g.vertices.find((*it).second);
-      stack.push(*(*curr).second);
-
-      while(!stack.empty()){
-          Vertex<T> v = stack.top();
-
-          if(!v.visited){
-          v.pre = count;
-          count++;
-          v.visited=true;
-          }
-
-          for(auto it2 = v.edges.begin(); it2 != v.edges.end(); it2++){
-               std::cout << "HEY\n" ;
-
-           if(!(*(g.vertices.find(*it2))).second->visited){
-               for(auto it3 = ((*(g.vertices.find(*it2))).second->edges).begin(); it3 !=  ((*(g.vertices.find(*it2))).second->edges).end(); it3++){
-                   std::cout << "HEY2\n" ;
-                   if(!(*g.vertices.find(*it3)).second->visited){
-                       // stack.push((*(*(g.vertices.find(*it3))).second));
-                       (*g.vertices.find(*it3)).second->visited = true;
-                       std::cout << "HEY3\n";
-                   }
-               }
-          }
-           else{
-               v.post = count;
-               count++;
-               stack.pop();
-           }
+  for(auto it = res.begin(); it != res.end(); it++){
+      unvisit(g);
+      if(checkCycle(g.vertices.find(*it)->second, g)){
+          return cycle;
       }
-
-               
   }
-}*/
+
+
+
+
     
   
   return res;
